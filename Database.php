@@ -32,7 +32,7 @@ class Database
         if (count($params)) {
             $i = 1;
             foreach ($params as $param) {
-                $this->query->bindValue($i,$param);
+                $this->query->bindValue($i, $param);
                 $i++;
             }
         }
@@ -59,5 +59,35 @@ class Database
     public function count()
     {
         return $this->count;
+    }
+
+    public function get($table, $where = [])
+    {
+        return $this->action('SELECT *', $table, $where);
+    }
+
+    public function delete($table, $where = [])
+    {
+        return $this->action('DELETE', $table, $where);
+    }
+
+    public function action($action, $table, $where = [])
+    {
+        if (count($where) === 3) {
+            $operators = ['=', '<', '>', '<=', '>='];
+
+            $field = $where[0];
+            $operator = $where[1];
+            $value = $where[2];
+
+            if (in_array($operator, $operators)) {
+                $sql = "{$action} FROM {$table} WHERE {$field} {$operator} ?";
+                if (!$this->query($sql, [$value])->error()) { // true if has error
+                    return $this;
+                }
+            }
+        }
+
+        return false;
     }
 }
