@@ -71,6 +71,23 @@ class Database
         return $this->action('DELETE', $table, $where);
     }
 
+    public function insert($table, $fields = [])
+    {
+        $values = '';
+        foreach ($fields as $field) {
+            $values .= "?,";
+        }
+        $val = rtrim($values, ',');
+
+        $sql = "INSERT INTO {$table} (" . '`' . implode("`, `", array_keys($fields)) . '`' . ") VALUES ({$val})";
+
+        if (!$this->query($sql,$fields)->error()){
+            return true;
+        }
+
+        return false;
+    }
+
     public function action($action, $table, $where = [])
     {
         if (count($where) === 3) {
