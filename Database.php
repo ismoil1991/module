@@ -75,13 +75,33 @@ class Database
     {
         $values = '';
         foreach ($fields as $field) {
-            $values .= "?,";
+            $values .= "?,"; // ?,?,
         }
-        $val = rtrim($values, ',');
 
+        $val = rtrim($values, ','); // ?,?
+        // implode("`, `", array_keys($fields)); "title`, `description"
+        // '`' . implode("`, `", array_keys($fields)) . '`'; `title`, `description`
         $sql = "INSERT INTO {$table} (" . '`' . implode("`, `", array_keys($fields)) . '`' . ") VALUES ({$val})";
 
-        if (!$this->query($sql,$fields)->error()){
+        if (!$this->query($sql, $fields)->error()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function update($table, $id, $fields = [])
+    {
+        $set = '';
+        foreach ($fields as $key => $field) {
+            $set .= $key . "=?,"; // title = ?, description = ?,
+        }
+
+        $set = rtrim($set, ','); // title = ?, description = ?
+
+        $sql = "UPDATE {$table} SET {$set} WHERE id = {$id}";
+
+        if (!$this->query($sql, $fields)->error()) {
             return true;
         }
 
@@ -106,5 +126,10 @@ class Database
         }
 
         return false;
+    }
+
+    public function first()
+    {
+        return $this->results()[0];
     }
 }
